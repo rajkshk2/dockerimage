@@ -1,22 +1,19 @@
-# this is my base image
-FROM alpine:3.5
+# Use the official Ubuntu base image
+FROM ubuntu:latest
 
-# Install python and pip
-RUN apk add --update py2-pip
+# Set the maintainer label
+LABEL maintainer="your-email@example.com"
 
-# Install curl
-RUN apk --no-cache add curl
+# Update the package list and install Apache
+RUN apt-get update && apt-get install -y \
+    apache2 \
+    && apt-get clean
 
-# install Python modules needed by the Python app
-COPY requirements.txt /usr/src/app/
-RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
+# Copy the custom HTML file to the Apache web directory
+COPY index.html /var/www/html/index.html
 
-# copy files required for the app to run
-COPY app.py /usr/src/app/
-COPY templates/index.html /usr/src/app/templates/
+# Expose port 80
+EXPOSE 80
 
-# tell the port number the container should expose
-EXPOSE 5000
-
-# run the application
-CMD ["python", "/usr/src/app/app.py"]
+# Start Apache in the foreground
+CMD ["apachectl", "-D", "FOREGROUND"]
